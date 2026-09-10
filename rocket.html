@@ -16,6 +16,7 @@
 		.stats { display: flex; gap: 24px; color: #9cb0c8; font-size: 11px; text-align: right; }
 		.stats strong { display: block; margin-top: 4px; color: #fff; font-size: 20px; letter-spacing: .04em; text-shadow: 0 0 10px var(--cyan); }
 		.status { position: absolute; left: 24px; bottom: 20px; color: #7190a9; font-size: 10px; letter-spacing: .12em; pointer-events: none; }
+		.credit { position: absolute; right: 24px; bottom: 20px; color: #7190a9; font-size: 10px; letter-spacing: .12em; pointer-events: none; }
 		.overlay { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(3, 7, 18, .72); backdrop-filter: blur(4px); text-align: center; }
 		.overlay.hidden { display: none; }
 		.panel { max-width: 490px; padding: 36px 34px; border: 1px solid #2a7184; background: rgba(5, 14, 31, .9); box-shadow: 0 0 30px rgba(32, 237, 255, .12), inset 0 0 28px rgba(18, 112, 145, .08); }
@@ -24,7 +25,7 @@
 		.prompt { margin-top: 26px !important; color: var(--yellow) !important; animation: pulse 1.4s ease-in-out infinite; }
 		.accent { color: var(--pink); }
 		@keyframes pulse { 50% { opacity: .42; } }
-		@media (max-width: 600px) { .game-shell { width: 100vw; height: 100vh; min-height: 0; border: 0; } .hud { padding: 16px; } .stats { gap: 12px; } .status { left: 16px; bottom: 14px; font-size: 9px; } }
+		@media (max-width: 600px) { .game-shell { width: 100vw; height: 100vh; min-height: 0; border: 0; } .hud { padding: 16px; } .stats { gap: 12px; } .status { left: 16px; bottom: 14px; font-size: 9px; } .credit { right: 16px; bottom: 14px; font-size: 9px; } }
 	</style>
 </head>
 <body>
@@ -35,6 +36,7 @@
 			<div class="stats"><div>SCORE<strong id="score">000000</strong></div><div>WAVE<strong id="wave">01</strong></div><div>HULL<strong id="hull">03</strong></div></div>
 		</div>
 		<div id="status" class="status">ARROWS MOVE &nbsp; // &nbsp; SPACE FIRE &nbsp; // &nbsp; MOUSE AIM</div>
+		<div class="credit">DESIGNED BY MJ</div>
 		<section id="overlay" class="overlay">
 			<div class="panel">
 				<h1 id="title">NEON<br>DRIFT</h1>
@@ -167,7 +169,7 @@
 				for (let index = particles.length - 1; index >= 0; index--) { const particle = particles[index]; particle.x += particle.vx * delta; particle.y += particle.vy * delta; particle.vx *= .97; particle.vy *= .97; particle.life -= delta; if (particle.life <= 0) particles.splice(index, 1); }
 			}
 			function drawBackground() { context.fillStyle = "#070d1c"; context.fillRect(0, 0, width, height); context.strokeStyle = "rgba(42, 99, 124, .10)"; context.lineWidth = 1; for (let x = 0; x < width; x += 46) { context.beginPath(); context.moveTo(x, 0); context.lineTo(x, height); context.stroke(); } for (let y = 0; y < height; y += 46) { context.beginPath(); context.moveTo(0, y); context.lineTo(width, y); context.stroke(); } for (const star of stars) { context.globalAlpha = star.alpha; context.fillStyle = "#bafaff"; context.fillRect(star.x, star.y, star.size, star.size); } context.globalAlpha = 1; }
-			function drawPlayer() { if (player.invulnerable > 0 && Math.floor(player.invulnerable * 12) % 2 === 0) return; context.save(); context.translate(player.x, player.y); context.rotate(player.angle + Math.PI / 2); context.shadowBlur = 18; context.shadowColor = "#55f5ff"; context.strokeStyle = "#55f5ff"; context.fillStyle = "rgba(33, 187, 210, .18)"; context.lineWidth = 2; context.beginPath(); context.moveTo(0, -20); context.lineTo(13, 14); context.lineTo(0, 9); context.lineTo(-13, 14); context.closePath(); context.fill(); context.stroke(); context.shadowBlur = 8; context.fillStyle = "#ffe66d"; context.beginPath(); context.moveTo(-5, 13); context.lineTo(0, 23 + Math.random() * 6); context.lineTo(5, 13); context.fill(); context.restore(); }
+			function drawPlayer() { if (player.invulnerable > 0 && Math.floor(player.invulnerable * 12) % 2 === 0) return; context.save(); context.translate(player.x, player.y); context.rotate(player.angle + Math.PI / 2); context.shadowBlur = 18; context.shadowColor = "#55f5ff"; context.strokeStyle = "#55f5ff"; context.fillStyle = "rgba(33, 187, 210, .18)"; context.lineWidth = 2; context.beginPath(); context.moveTo(0, -20); context.lineTo(13, 14); context.lineTo(0, 9); context.lineTo(-13, 14); context.closePath(); context.fill(); context.stroke(); context.shadowBlur = 7; context.shadowColor = "#ffffff"; context.fillStyle = "#ffffff"; context.font = "bold 7px monospace"; context.textAlign = "center"; context.textBaseline = "middle"; context.fillText("MJ", 0, 1); context.shadowBlur = 8; context.fillStyle = "#ffe66d"; context.beginPath(); context.moveTo(-5, 13); context.lineTo(0, 23 + Math.random() * 6); context.lineTo(5, 13); context.fill(); context.restore(); }
 			function draw() { drawBackground(); context.shadowBlur = 12; context.shadowColor = "#ffe66d"; context.fillStyle = "#ffe66d"; for (const bullet of bullets) { context.beginPath(); context.arc(bullet.x, bullet.y, 3, 0, Math.PI * 2); context.fill(); } context.shadowColor = "#ff4fbb"; for (const enemy of enemies) { context.save(); context.translate(enemy.x, enemy.y); context.rotate(enemy.rotation); context.strokeStyle = enemy.hue; context.shadowColor = enemy.hue; context.lineWidth = 2; context.beginPath(); for (let point = 0; point < enemy.shape; point++) { const angle = point / enemy.shape * Math.PI * 2; const radius = enemy.size * random(.72, 1.05); const x = Math.cos(angle) * radius; const y = Math.sin(angle) * radius; point ? context.lineTo(x, y) : context.moveTo(x, y); } context.closePath(); context.stroke(); context.restore(); } context.shadowBlur = 0; for (const particle of particles) { context.globalAlpha = Math.max(0, particle.life / particle.maxLife); context.fillStyle = particle.color; context.fillRect(particle.x, particle.y, particle.size, particle.size); } context.globalAlpha = 1; drawPlayer(); }
 			function frame(time) { const delta = Math.min((time - lastTime) / 1000 || 0, .033); lastTime = time; if (running) update(delta); draw(); requestAnimationFrame(frame); }
 			function launch() { resetGame(); }
