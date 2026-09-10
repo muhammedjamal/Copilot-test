@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Copilot, AI built for work</title>
+	<style>
+		@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+		:root { --ink: #17253d; --muted: #536581; --blue: #0b5cff; --sky: #e9f4ff; --line: #d8e1ec; --orange: #ff9d54; --lavender: #eee8ff; --mint: #dff8e9; }
+		* { box-sizing: border-box; }
+		html { scroll-behavior: smooth; }
+		body { margin: 0; color: var(--ink); background: #fff; font: 16px/1.5 'DM Sans', sans-serif; }
+		a { color: inherit; }
+		.site-header { height: 68px; padding: 0 clamp(22px, 5vw, 76px); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eef1f5; background: rgba(255,255,255,.9); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(14px); }
+		.brand { display: flex; align-items: center; gap: 13px; font-weight: 700; letter-spacing: -.02em; }
+		.microsoft-mark { width: 18px; height: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+		.microsoft-mark i { background: #f25022; } .microsoft-mark i:nth-child(2) { background: #7fba00; } .microsoft-mark i:nth-child(3) { background: #00a4ef; } .microsoft-mark i:nth-child(4) { background: #ffb900; }
+		.brand-divider { height: 22px; width: 1px; background: #cbd4df; } .brand-product { font-weight: 500; }
+		.header-actions { display: flex; align-items: center; gap: 22px; } .header-actions a { font-size: 14px; text-decoration: none; }
+		.sign-in { padding: 9px 17px; border: 1px solid var(--ink); border-radius: 999px; font-weight: 700; }
+		.hero { min-height: 585px; padding: clamp(72px, 10vw, 132px) clamp(22px, 9vw, 142px) 90px; background: radial-gradient(circle at 76% 16%, #ffd7b5 0, rgba(255,215,181,0) 23%), linear-gradient(120deg, #fff 32%, #f4f8ff 100%); overflow: hidden; position: relative; }
+		.hero:after { content: ''; width: 34vw; height: 34vw; max-width: 480px; max-height: 480px; border-radius: 50%; border: 1px solid #c7dcff; position: absolute; right: -8vw; bottom: -20vw; box-shadow: 0 0 0 28px #edf5ff, 0 0 0 29px #dbeaff; opacity: .9; }
+		.kicker { color: var(--blue); font-weight: 700; font-size: 14px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 22px; }
+		h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -.055em; }
+		h1 { max-width: 790px; font-size: clamp(58px, 9vw, 126px); line-height: .91; margin: 0; font-weight: 600; }
+		.hero-copy { max-width: 540px; color: var(--muted); font-size: 18px; margin: 31px 0 0; }
+		.hero-cta { display: inline-flex; align-items: center; gap: 10px; margin-top: 31px; padding: 14px 21px; background: var(--ink); color: white; border-radius: 5px; font-weight: 700; text-decoration: none; transition: transform .2s, background .2s; }
+		.hero-cta:hover { background: var(--blue); transform: translateY(-2px); }
+		.section { padding: clamp(70px, 9vw, 120px) clamp(22px, 8vw, 124px); }
+		.section-heading { max-width: 660px; margin-bottom: 48px; } .section-heading h2 { font-size: clamp(38px, 5vw, 68px); line-height: .98; margin: 0 0 17px; } .section-heading p { color: var(--muted); max-width: 510px; margin: 0; }
+		.workflow { background: #fff; } .workflow-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+		.workflow-card { min-height: 390px; padding: 28px; display: flex; flex-direction: column; justify-content: space-between; border-radius: 7px; overflow: hidden; position: relative; }
+		.workflow-card:nth-child(1) { background: var(--sky); } .workflow-card:nth-child(2) { background: var(--lavender); } .workflow-card:nth-child(3) { background: #fff0e4; }
+		.card-number { color: var(--blue); font-size: 13px; font-weight: 700; } .workflow-card h3 { margin: 40px 0 10px; font-size: 29px; } .workflow-card p { max-width: 290px; color: var(--muted); margin: 0; }
+		.card-link { display: inline-flex; align-items: center; gap: 12px; margin-top: 28px; font-weight: 700; text-decoration: none; } .arrow { width: 29px; height: 29px; display: grid; place-items: center; border-radius: 50%; background: white; color: var(--blue); }
+		.card-art { position: absolute; right: 26px; bottom: 24px; width: 100px; height: 100px; border-radius: 50% 50% 13px 50%; background: #83d5ff; transform: rotate(18deg); opacity: .8; } .card-art:after { content: ''; position: absolute; inset: 20px; border-radius: 50%; border: 3px solid white; } .workflow-card:nth-child(2) .card-art { background: #af9dff; } .workflow-card:nth-child(3) .card-art { background: #ffae66; }
+		.download { background: var(--ink); color: white; display: grid; grid-template-columns: 1.05fr .95fr; gap: 80px; align-items: center; } .download .section-heading { margin: 0; } .download .section-heading h2 { color: white; } .download .section-heading p { color: #bfccdd; }
+		.download-panel { padding: 31px; background: #283750; border: 1px solid #40506c; border-radius: 8px; } .download-panel h3 { margin: 0 0 8px; font-size: 26px; } .download-panel p { color: #bfccdd; margin: 0 0 23px; } .download-links { display: flex; gap: 18px; flex-wrap: wrap; } .download-links a { color: white; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
+		.facts { background: #f7f9fc; } .facts-top { display: flex; align-items: end; justify-content: space-between; gap: 28px; } .facts-top .section-heading { margin: 0; } .expand { border: 0; border-bottom: 1px solid var(--ink); background: transparent; padding: 7px 0; color: var(--ink); font: inherit; cursor: pointer; font-weight: 700; }
+		.facts-list { margin-top: 50px; border-top: 1px solid var(--line); } .fact { border-bottom: 1px solid var(--line); } .fact button { width: 100%; display: grid; grid-template-columns: 75px 1fr 30px; align-items: center; gap: 20px; border: 0; background: transparent; padding: 22px 0; color: var(--ink); text-align: left; font: inherit; cursor: pointer; } .fact-index { color: var(--blue); font-weight: 700; font-size: 13px; } .fact-title { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 600; } .fact-icon { font-size: 25px; text-align: right; transition: transform .25s; } .fact-body { display: none; grid-column: 2; max-width: 720px; color: var(--muted); padding: 0 0 25px; } .fact.open .fact-body { display: block; } .fact.open .fact-icon { transform: rotate(45deg); }
+		.site-footer { padding: 32px clamp(22px, 8vw, 124px); display: flex; justify-content: space-between; align-items: center; gap: 20px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); } .footer-links { display: flex; gap: 20px; flex-wrap: wrap; } .footer-links a { text-decoration: none; } 
+		@media (max-width: 760px) { .site-header { height: 60px; } .brand-divider, .header-actions a:not(.sign-in) { display: none; } .hero { min-height: 560px; padding-top: 80px; } .hero:after { width: 60vw; height: 60vw; right: -24vw; bottom: -25vw; } h1 { font-size: clamp(55px, 17vw, 90px); } .workflow-grid, .download { grid-template-columns: 1fr; } .workflow-card { min-height: 310px; } .download { gap: 42px; } .facts-top { display: block; } .expand { margin-top: 20px; } .fact button { grid-template-columns: 45px 1fr 25px; gap: 10px; } .fact-title { font-size: 17px; } .fact-body { grid-column: 2 / 4; } .site-footer { display: block; } .footer-links { margin-top: 16px; } }
+	</style>
+</head>
+<body>
+	<header class="site-header">
+		<a class="brand" href="#top" aria-label="Microsoft Copilot home"><span class="microsoft-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Microsoft</span><span class="brand-divider"></span><span class="brand-product">Copilot</span></a>
+		<div class="header-actions"><a href="#facts">Explore</a><a class="sign-in" href="#signin">Sign in</a></div>
+	</header>
+	<main id="top">
+		<section class="hero"><p class="kicker">Microsoft 365 Copilot</p><h1>AI built for work.</h1><p class="hero-copy">Copilot Chat brings powerful AI assistance into your daily workflow, helping you turn ideas into action and tasks into outcomes.</p><a class="hero-cta" href="#workflow">Get started <span aria-hidden="true">&#8594;</span></a></section>
+		<section class="section workflow" id="workflow">
+			<div class="section-heading"><h2>Copilot for every part of your day</h2><p>Move from a blank page to meaningful progress with a companion that understands how work gets done.</p></div>
+			<div class="workflow-grid">
+				<article class="workflow-card"><div><span class="card-number">01 / CHAT</span><h3>Get started with chat</h3><p>Think through projects, summarize information, and keep work moving forward in one conversation.</p></div><a class="card-link" href="#signin">Go to Chat <span class="arrow">&#8594;</span></a><div class="card-art" aria-hidden="true"></div></article>
+				<article class="workflow-card"><div><span class="card-number">02 / SEARCH</span><h3>Find what you need</h3><p>Get grounded answers and quickly find the information, files, and insights you need to get work done.</p></div><a class="card-link" href="#signin">Go to Search <span class="arrow">&#8594;</span></a><div class="card-art" aria-hidden="true"></div></article>
+				<article class="workflow-card"><div><span class="card-number">03 / CREATE</span><h3>Create with AI</h3><p>Draft content, generate images, and turn ideas into polished work faster.</p></div><a class="card-link" href="#signin">Start creating <span class="arrow">&#8594;</span></a><div class="card-art" aria-hidden="true"></div></article>
+			</div>
+		</section>
+		<section class="section download"><div class="section-heading"><h2>Bring Copilot with you.</h2><p>Access your work wherever the day takes you, with focused experiences for desktop and mobile.</p></div><div class="download-panel"><h3>Download Copilot</h3><p>Get the app for your preferred device and keep your ideas moving.</p><div class="download-links"><a href="#windows">For Windows &#8599;</a><a href="#mobile">For mobile &#8599;</a></div></div></section>
+		<section class="section facts" id="facts"><div class="facts-top"><div class="section-heading"><h2>Did you know?</h2><p>A few ways Copilot helps turn questions into forward progress.</p></div><button class="expand" id="expandAll" type="button">Expand all</button></div><div class="facts-list">
+			<div class="fact open"><button type="button"><span class="fact-index">01 /</span><span class="fact-title">Copilot is free with a signed-in Microsoft account</span><span class="fact-icon">+</span></button><div class="fact-body">There is a free tier available with a signed-in Microsoft account. Some capabilities have usage limits, with more available on paid plans.</div></div>
+			<div class="fact"><button type="button"><span class="fact-index">02 /</span><span class="fact-title">Your work and personal chat history stay separate</span><span class="fact-icon">+</span></button><div class="fact-body">Copilot keeps your work context focused, helping you move between personal and professional tasks with clarity.</div></div>
+			<div class="fact"><button type="button"><span class="fact-index">03 /</span><span class="fact-title">Copilot helps you quickly get oriented in your work</span><span class="fact-icon">+</span></button><div class="fact-body">Ask questions about a project, summarize a thread, or surface the details that matter most.</div></div>
+			<div class="fact"><button type="button"><span class="fact-index">04 /</span><span class="fact-title">Copilot is designed to work securely with your work content</span><span class="fact-icon">+</span></button><div class="fact-body">Your organization’s existing permissions and controls help keep work content protected.</div></div>
+		</div></section>
+	</main>
+	<footer class="site-footer"><span>&copy; Microsoft 2026</span><nav class="footer-links"><a href="#privacy">Privacy</a><a href="#terms">Terms of Use</a><a href="#support">Support</a></nav></footer>
+	<script>
+		const facts = [...document.querySelectorAll('.fact')];
+		facts.forEach(fact => fact.querySelector('button').addEventListener('click', () => fact.classList.toggle('open')));
+		document.getElementById('expandAll').addEventListener('click', event => {
+			const shouldOpen = facts.some(fact => !fact.classList.contains('open'));
+			facts.forEach(fact => fact.classList.toggle('open', shouldOpen));
+			event.currentTarget.textContent = shouldOpen ? 'Collapse all' : 'Expand all';
+		});
+	</script>
+</body>
+</html>
