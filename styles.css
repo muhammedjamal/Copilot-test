@@ -1,0 +1,65 @@
+@keyframes nebulaDrift {
+  0%, 100% { background-position: 20% 10%, 0 0; }
+  50% { background-position: 75% 30%, 0 0; }
+}
+
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+body {
+  animation: nebulaDrift 18s ease-in-out infinite;
+  background-size: 140% 140%, auto;
+}
+
+header,
+.hero {
+  animation: riseIn 0.8s ease both;
+}
+
+.card {
+  animation: riseIn 0.65s ease both;
+  transform-style: preserve-3d;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.card:hover {
+  box-shadow: 0 22px 45px #0007;
+  border-color: #5ee7f755;
+}
+
+.button,
+.open-game,
+.close-game,
+.mini-action,
+.key,
+.tap {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.button:hover,
+.open-game:hover,
+.mini-action:hover,
+.key:hover,
+.tap:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px #5ee7f755;
+}
+
+.button:active,
+.open-game:active,
+.mini-action:active,
+.key:active,
+.tap:active {
+  transform: translateY(1px) scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
