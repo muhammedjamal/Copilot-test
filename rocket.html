@@ -17,6 +17,13 @@
 		.stats strong { display: block; margin-top: 4px; color: #fff; font-size: 20px; letter-spacing: .04em; text-shadow: 0 0 10px var(--cyan); }
 		.status { position: absolute; left: 24px; bottom: 20px; color: #7190a9; font-size: 10px; letter-spacing: .12em; pointer-events: none; }
 		.credit { position: absolute; right: 24px; bottom: 20px; color: #7190a9; font-size: 10px; letter-spacing: .12em; pointer-events: none; }
+		.mobile-controls { display: none; }
+		.control-pad { display: grid; grid-template-columns: repeat(3, 48px); grid-template-rows: repeat(3, 48px); gap: 5px; }
+		.control-button { border: 1px solid #55f5ff88; border-radius: 10px; background: #0b2638bb; color: var(--cyan); font: bold 22px monospace; box-shadow: 0 0 14px #55f5ff22; touch-action: none; user-select: none; }
+		.control-button:active, .control-button.active { background: #55f5ff44; box-shadow: 0 0 18px #55f5ff88; }
+		.control-up { grid-column: 2; grid-row: 1; }.control-left { grid-column: 1; grid-row: 2; }.control-down { grid-column: 2; grid-row: 2; }.control-right { grid-column: 3; grid-row: 2; }
+		.fire-button { width: 94px; height: 94px; border-color: #ff4fbb99; border-radius: 50%; color: var(--pink); background: #35152fbb; font-size: 13px; letter-spacing: .12em; }
+		.fire-button:active, .fire-button.active { background: #ff4fbb55; box-shadow: 0 0 22px #ff4fbb99; }
 		.overlay { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(3, 7, 18, .72); backdrop-filter: blur(4px); text-align: center; }
 		.overlay.hidden { display: none; }
 		.panel { max-width: 490px; padding: 36px 34px; border: 1px solid #2a7184; background: rgba(5, 14, 31, .9); box-shadow: 0 0 30px rgba(32, 237, 255, .12), inset 0 0 28px rgba(18, 112, 145, .08); }
@@ -25,7 +32,7 @@
 		.prompt { margin-top: 26px !important; color: var(--yellow) !important; animation: pulse 1.4s ease-in-out infinite; }
 		.accent { color: var(--pink); }
 		@keyframes pulse { 50% { opacity: .42; } }
-		@media (max-width: 600px) { .game-shell { width: 100vw; height: 100vh; min-height: 0; border: 0; } .hud { padding: 16px; } .stats { gap: 12px; } .status { left: 16px; bottom: 14px; font-size: 9px; } .credit { right: 16px; bottom: 14px; font-size: 9px; } }
+		@media (max-width: 600px) { .game-shell { width: 100vw; height: 100vh; min-height: 0; border: 0; } .hud { padding: 16px; } .brand { font-size: 10px; } .stats { gap: 10px; } .stats strong { font-size: 16px; } .status { left: 16px; bottom: 14px; font-size: 8px; } .credit { right: 16px; bottom: 14px; font-size: 8px; } .mobile-controls { position: absolute; left: 18px; right: 18px; bottom: 48px; display: flex; align-items: center; justify-content: space-between; pointer-events: none; } .control-pad, .fire-button { pointer-events: auto; } .panel { padding: 28px 22px; } }
 	</style>
 </head>
 <body>
@@ -37,6 +44,15 @@
 		</div>
 		<div id="status" class="status">ARROWS MOVE &nbsp; // &nbsp; SPACE FIRE &nbsp; // &nbsp; MOUSE AIM</div>
 		<div class="credit">DESIGNED BY MJ</div>
+		<div class="mobile-controls" aria-label="Touch controls">
+			<div class="control-pad">
+				<button class="control-button control-up" data-key="ArrowUp" aria-label="Move up">&#9650;</button>
+				<button class="control-button control-left" data-key="ArrowLeft" aria-label="Move left">&#9664;</button>
+				<button class="control-button control-down" data-key="ArrowDown" aria-label="Move down">&#9660;</button>
+				<button class="control-button control-right" data-key="ArrowRight" aria-label="Move right">&#9654;</button>
+			</div>
+			<button class="control-button fire-button" aria-label="Fire">FIRE</button>
+		</div>
 		<section id="overlay" class="overlay">
 			<div class="panel">
 				<h1 id="title">NEON<br>DRIFT</h1>
@@ -175,7 +191,13 @@
 			function launch() { resetGame(); }
 			window.addEventListener("keydown", (event) => { keys.add(event.key); if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(event.key)) event.preventDefault(); if ((event.key === " " || event.key === "Enter") && (!running || gameOver)) launch(); });
 			window.addEventListener("keyup", (event) => keys.delete(event.key));
-			canvas.addEventListener("mousemove", aimAtPointer); canvas.addEventListener("mousedown", (event) => { aimAtPointer(event); if (!running || gameOver) launch(); else fire(); });
+			canvas.addEventListener("pointermove", aimAtPointer); canvas.addEventListener("pointerdown", (event) => { aimAtPointer(event); if (!running || gameOver) launch(); else fire(); });
+			const mobileButtons = document.querySelectorAll("[data-key]");
+			mobileButtons.forEach((button) => { const key = button.dataset.key; const press = (event) => { event.preventDefault(); keys.add(key); button.classList.add("active"); button.setPointerCapture(event.pointerId); }; const release = (event) => { event.preventDefault(); keys.delete(key); button.classList.remove("active"); }; button.addEventListener("pointerdown", press); button.addEventListener("pointerup", release); button.addEventListener("pointercancel", release); });
+			const fireButton = document.querySelector(".fire-button");
+			fireButton.addEventListener("pointerdown", (event) => { event.preventDefault(); fireButton.classList.add("active"); fireButton.setPointerCapture(event.pointerId); if (!running || gameOver) launch(); keys.add(" "); fire(); });
+			fireButton.addEventListener("pointerup", () => { fireButton.classList.remove("active"); keys.delete(" "); }); fireButton.addEventListener("pointercancel", () => { fireButton.classList.remove("active"); keys.delete(" "); });
+			overlay.addEventListener("pointerdown", launch);
 			resize(); createStars(); updateHud(); requestAnimationFrame(frame);
 		})();
 	</script>
