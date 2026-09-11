@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="A calm, colorful space for notes and to-dos.">
+	<title>Keepwell | Notes and to-dos</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+	<div class="app-shell">
+		<header class="topbar">
+			<button class="icon-button menu-button" id="menu-button" aria-label="Toggle navigation" title="Toggle navigation">☰</button>
+			<a class="wordmark" href="./" aria-label="Keepwell home"><span class="wordmark-mark">k</span>keepwell</a>
+			<label class="search-box" for="search-input">
+				<span aria-hidden="true">⌕</span>
+				<input id="search-input" type="search" placeholder="Search your notes" autocomplete="off">
+				<kbd>/</kbd>
+			</label>
+			<div class="top-actions">
+				<button class="icon-button" id="refresh-button" aria-label="Refresh notes" title="Refresh notes">↻</button>
+				<button class="icon-button" id="view-button" aria-label="Switch note layout" title="Switch note layout">▦</button>
+				<button class="avatar" aria-label="Open profile" title="Profile">MJ</button>
+			</div>
+		</header>
+
+		<div class="app-body">
+			<aside class="sidebar" id="sidebar">
+				<nav aria-label="Notes navigation">
+					<button class="nav-item active" data-view="notes"><span class="nav-icon">▣</span><span>Notes</span><strong id="notes-count">0</strong></button>
+					<button class="nav-item" data-view="reminders"><span class="nav-icon">◷</span><span>Reminders</span></button>
+					<button class="nav-item" data-view="archive"><span class="nav-icon">⌄</span><span>Archive</span></button>
+					<button class="nav-item" data-view="trash"><span class="nav-icon">♢</span><span>Trash</span></button>
+				</nav>
+				<div class="sidebar-section">
+					<div class="sidebar-heading"><span>Labels</span><button class="text-button" id="add-label-button" type="button">+</button></div>
+					<div id="labels-list" class="labels-list"></div>
+				</div>
+				<div class="sidebar-footer"><span class="status-light"></span><span>Synced just now</span></div>
+			</aside>
+
+			<main class="main-content">
+				<div class="content-heading">
+					<div>
+						<p class="eyebrow">YOUR SPACE / <span id="view-kicker">ALL NOTES</span></p>
+						<h1 id="page-title">Notes</h1>
+					</div>
+					<button class="new-note-button" id="focus-composer" type="button"><span>+</span> New note</button>
+				</div>
+
+				<form class="composer" id="composer-form">
+					<div class="composer-top"><input id="note-title" type="text" maxlength="80" placeholder="Title" aria-label="Note title"><button class="pin-toggle" id="composer-pin" type="button" aria-label="Pin note" title="Pin note">☆</button></div>
+					<textarea id="note-content" rows="1" placeholder="Take a note..." aria-label="Note content"></textarea>
+					<div class="composer-options">
+						<button type="button" class="option-button" id="checklist-toggle"><span>☑</span> Checklist</button>
+						<label class="label-select"><span>Label</span><select id="note-label"><option value="">No label</option><option value="Work">Work</option><option value="Personal">Personal</option><option value="Ideas">Ideas</option></select></label>
+						<span class="composer-hint">Press Ctrl + Enter to save</span>
+						<button class="save-button" type="submit">Save note</button>
+					</div>
+					<div class="checklist-editor" id="checklist-editor" hidden></div>
+				</form>
+
+				<div class="toolbar"><div class="result-count" id="result-count"></div><div class="filter-chips"><button class="filter-chip active" data-filter="all" type="button">All</button><button class="filter-chip" data-filter="pinned" type="button">Pinned</button><button class="filter-chip" data-filter="label" type="button">Labeled</button></div></div>
+				<section class="notes-board" id="notes-board" aria-live="polite"></section>
+				<div class="empty-state" id="empty-state" hidden><div class="empty-icon">⌁</div><h2 id="empty-title">Nothing here yet</h2><p id="empty-copy">Capture a thought, make a list, or save an idea for later.</p></div>
+			</main>
+		</div>
+	</div>
+	<div class="toast" id="toast" role="status" aria-live="polite"></div>
+	<script src="app.js"></script>
+</body>
+</html>
