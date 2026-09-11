@@ -31,7 +31,7 @@ function parseRatio(value, ownerCount) {
   return numbers;
 }
 
-function calculatePropertySplit({ landValue, buildingValue, ownerCount, landRatio, buildingRatio }) {
+function calculatePropertySplit({ landValue, buildingValue, squareFeet, landSquareFeet, buildingSquareFeet, ownerCount, landRatio, buildingRatio }) {
   const owners = Number(ownerCount);
   if (!Number.isInteger(owners) || owners < 1) {
     throw new Error('Owner count must be a positive whole number.');
@@ -39,6 +39,15 @@ function calculatePropertySplit({ landValue, buildingValue, ownerCount, landRati
 
   const land = parseAmount(landValue);
   const building = parseAmount(buildingValue);
+  const area = parseAmount(squareFeet);
+  if (area <= 0) {
+    throw new Error('Enter a square feet value greater than zero.');
+  }
+  const landArea = parseAmount(landSquareFeet || area);
+  const buildingArea = parseAmount(buildingSquareFeet || area);
+  if (landArea <= 0 || buildingArea <= 0) {
+    throw new Error('Land and building square feet must be greater than zero.');
+  }
   const landParts = Array.isArray(landRatio) ? landRatio : parseRatio(landRatio, owners);
   const buildingParts = Array.isArray(buildingRatio) ? buildingRatio : parseRatio(buildingRatio, owners);
 
@@ -52,16 +61,26 @@ function calculatePropertySplit({ landValue, buildingValue, ownerCount, landRati
   const buildingPercentages = buildingParts.map((part) => (part / buildingTotal) * 100);
   const landShares = landParts.map((part) => (land * part) / landTotal);
   const buildingShares = buildingParts.map((part) => (building * part) / buildingTotal);
+  const landSquareFeetShares = landParts.map((part) => (landArea * part) / landTotal);
+  const buildingSquareFeetShares = buildingParts.map((part) => (buildingArea * part) / buildingTotal);
   const totalShares = landShares.map((share, index) => share + buildingShares[index]);
 
   return {
     landValue: land,
     buildingValue: building,
     totalValue: land + building,
+    squareFeet: area,
+    landSquareFeet: landArea,
+    buildingSquareFeet: buildingArea,
+    amountPerSquareFoot: (land + building) / area,
+    landAmountPerSquareFoot: land / landArea,
+    buildingAmountPerSquareFoot: building / buildingArea,
     landPercentages,
     buildingPercentages,
     landShares,
     buildingShares,
+    landSquareFeetShares,
+    buildingSquareFeetShares,
     totalShares
   };
 }

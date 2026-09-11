@@ -49,6 +49,21 @@
             <input id="owner-count" name="ownerCount" type="number" min="1" step="1" value="2" required>
             <span class="field-error" data-error-for="owner-count"></span>
           </label>
+          <label class="field field-small">
+            <span>Property area <small>SQ FT</small></span>
+            <input id="square-feet" name="squareFeet" type="text" inputmode="decimal" placeholder="1,000" value="1,000" required>
+            <span class="field-error" data-error-for="square-feet"></span>
+          </label>
+          <label class="field field-small">
+            <span>Land area <small>SQ FT</small></span>
+            <input id="land-square-feet" name="landSquareFeet" type="text" inputmode="decimal" placeholder="1,000" value="1,000" required>
+            <span class="field-error" data-error-for="land-square-feet"></span>
+          </label>
+          <label class="field field-small">
+            <span>Building area <small>SQ FT</small></span>
+            <input id="building-square-feet" name="buildingSquareFeet" type="text" inputmode="decimal" placeholder="1,000" value="1,000" required>
+            <span class="field-error" data-error-for="building-square-feet"></span>
+          </label>
         </div>
 
         <div class="ratio-block">
@@ -84,13 +99,15 @@
         <div class="asset-strip">
           <div><span>Land</span><strong id="land-total">₹60,00,000</strong></div>
           <div><span>Building</span><strong id="building-total">₹40,00,000</strong></div>
+          <div><span>Land / sq ft</span><strong id="land-amount-per-square-foot">₹6,000</strong></div>
+          <div><span>Building / sq ft</span><strong id="building-amount-per-square-foot">₹4,000</strong></div>
         </div>
 
         <div class="table-wrap">
           <table>
             <caption>Value held by each owner</caption>
             <thead>
-              <tr><th scope="col">Owner</th><th scope="col">Land</th><th scope="col">Building</th><th scope="col">Total share</th></tr>
+                      <tr><th scope="col">Owner</th><th scope="col">Area share</th><th scope="col">Land</th><th scope="col">Building</th><th scope="col">Total share</th></tr>
             </thead>
             <tbody id="results-body"></tbody>
           </table>
