@@ -1,0 +1,26 @@
+Please analyze the property data provided below to calculate the total property valuation, cost distributions, and exact equity splits per owner based on the specified ratios and percentages.
+## 📊 Property Valuation Inputs
+
+* Land Value: [Insert Amount in ₹, e.g., ₹50,00,000]
+* Building Value: [Insert Amount in ₹, e.g., ₹35,00,000]
+
+## 👥 Ownership Allocation
+
+* Number of Owners: [Insert Number, e.g., 2, 3, 4]
+* Land Share Ratio: [Insert Ratio based on number of owners, e.g., 2:1 for 2 owners]
+* Building Share Ratio: [Insert Ratio based on number of owners, e.g., 2.5:1.5 for 2 owners]
+
+## 🔍 Required Output Deliverables
+
+   1. Total Asset Valuation: Combine the land and building values to determine the baseline property worth.
+   2. Ratio-to-Percentage Conversion: Convert the Land Share Ratio and Building Share Ratio into exact percentages for each individual owner.
+   3. Financial Value per Owner: Calculate the exact Rupee (₹) value of the land and building owned by each person based on their percentage splits.
+   4. Financial Summary: Present a clean, structured table comparing each owner's share side-by-side using the Indian numbering system (Lakhs/Crores).
+
+------------------------------
+## 💡 Example Breakdown (For Reference)
+If you input a property with 2 Owners, a Land Value of ₹60 Lakhs (2:1 ratio), and a Building Value of ₹40 Lakhs (2.5:1.5 ratio):
+
+* Land Split (2:1): Total parts = 3. Owner 1 gets 66.67% (₹40,00,000), Owner 2 gets 33.33% (₹20,00,000).
+* Building Split (2.5:1.5): Total parts = 4. Owner 1 gets 62.5% (₹25,00,000), Owner 2 gets 37.5% (₹15,00,000).
+

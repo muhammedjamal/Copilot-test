@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Calculate property valuation and ownership splits in Indian rupees.">
+  <title>ShareLedger | Property split calculator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="page-shell">
+    <header class="site-header">
+      <a class="brand" href="./">Share<span>Ledger</span></a>
+      <p class="header-note">A clear view of what everyone owns.</p>
+    </header>
+
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">PROPERTY VALUATION WORKBENCH</p>
+      <h1 id="page-title">Make every share<br><em>count.</em></h1>
+      <p class="intro-copy">Enter the property values and ownership ratios. ShareLedger turns them into an exact, easy-to-read financial picture.</p>
+    </section>
+
+    <section class="workspace" aria-label="Property split calculator">
+      <form id="calculator-form" class="input-panel" novalidate>
+        <div class="panel-heading">
+          <div>
+            <p class="section-kicker">01 / INPUTS</p>
+            <h2>Property details</h2>
+          </div>
+          <span class="status-dot" aria-hidden="true"></span>
+        </div>
+
+        <div class="field-grid">
+          <label class="field">
+            <span>Land value <small>INR</small></span>
+            <input id="land-value" name="landValue" type="text" inputmode="decimal" placeholder="60,00,000" value="60,00,000" required>
+            <span class="field-error" data-error-for="land-value"></span>
+          </label>
+          <label class="field">
+            <span>Building value <small>INR</small></span>
+            <input id="building-value" name="buildingValue" type="text" inputmode="decimal" placeholder="40,00,000" value="40,00,000" required>
+            <span class="field-error" data-error-for="building-value"></span>
+          </label>
+          <label class="field field-small">
+            <span>Number of owners</span>
+            <input id="owner-count" name="ownerCount" type="number" min="1" step="1" value="2" required>
+            <span class="field-error" data-error-for="owner-count"></span>
+          </label>
+        </div>
+
+        <div class="ratio-block">
+          <div class="ratio-title"><span>Ownership ratios</span><small>one part per owner</small></div>
+          <div class="field-grid ratio-grid">
+            <label class="field">
+              <span>Land share ratio</span>
+              <input id="land-ratio" name="landRatio" type="text" placeholder="2:1" value="2:1" required>
+              <span class="field-error" data-error-for="land-ratio"></span>
+            </label>
+            <label class="field">
+              <span>Building share ratio</span>
+              <input id="building-ratio" name="buildingRatio" type="text" placeholder="2.5:1.5" value="2.5:1.5" required>
+              <span class="field-error" data-error-for="building-ratio"></span>
+            </label>
+          </div>
+        </div>
+
+        <button class="calculate-button" type="submit">Calculate ownership <span aria-hidden="true">→</span></button>
+        <p class="form-message" id="form-message" role="alert"></p>
+      </form>
+
+      <section class="results-panel" aria-live="polite" aria-labelledby="results-title">
+        <div class="panel-heading results-heading">
+          <div>
+            <p class="section-kicker">02 / BREAKDOWN</p>
+            <h2 id="results-title">Your property picture</h2>
+          </div>
+          <span class="total-label">TOTAL VALUE</span>
+        </div>
+
+        <div class="total-value" id="total-value">₹1,00,00,000</div>
+        <div class="asset-strip">
+          <div><span>Land</span><strong id="land-total">₹60,00,000</strong></div>
+          <div><span>Building</span><strong id="building-total">₹40,00,000</strong></div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <caption>Value held by each owner</caption>
+            <thead>
+              <tr><th scope="col">Owner</th><th scope="col">Land</th><th scope="col">Building</th><th scope="col">Total share</th></tr>
+            </thead>
+            <tbody id="results-body"></tbody>
+          </table>
+        </div>
+        <p class="table-note">Percentages are calculated independently for land and building.</p>
+      </section>
+    </section>
+
+    <footer><span>SHARELEDGER</span><span>VALUES IN INDIAN RUPEES</span></footer>
+  </main>
+  <script src="calculations.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

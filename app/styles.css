@@ -1,0 +1,72 @@
+:root {
+  --ink: #162a28;
+  --muted: #71817d;
+  --paper: #f4f1e9;
+  --panel: #fffdf7;
+  --line: #d9ded6;
+  --teal: #0d7167;
+  --teal-dark: #07534d;
+  --coral: #db765b;
+  --shadow: 0 22px 55px rgba(29, 61, 54, .1);
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; color: var(--ink); background: var(--paper); font-family: 'DM Sans', sans-serif; }
+body::before { content: ''; position: fixed; inset: 0; opacity: .28; pointer-events: none; background-image: radial-gradient(#b9c9bd 0.7px, transparent .7px); background-size: 18px 18px; }
+.page-shell { width: min(1160px, calc(100% - 48px)); margin: 0 auto; padding: 28px 0 24px; position: relative; }
+.site-header, footer { display: flex; justify-content: space-between; align-items: center; }
+.brand { color: var(--ink); font-size: 1.1rem; font-weight: 700; letter-spacing: -.03em; text-decoration: none; }
+.brand span { color: var(--teal); }
+.header-note, footer { color: var(--muted); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; }
+.intro { max-width: 650px; padding: 90px 0 58px; }
+.eyebrow, .section-kicker { color: var(--coral); font-size: .68rem; font-weight: 700; letter-spacing: .16em; margin: 0 0 15px; }
+h1, h2 { font-family: Fraunces, Georgia, serif; margin: 0; font-weight: 600; }
+h1 { font-size: clamp(3.5rem, 7vw, 6.8rem); letter-spacing: -.07em; line-height: .91; }
+h1 em { color: var(--teal); font-style: normal; }
+.intro-copy { color: var(--muted); font-size: 1.05rem; line-height: 1.65; margin: 25px 0 0; max-width: 500px; }
+.workspace { display: grid; grid-template-columns: minmax(320px, .85fr) minmax(500px, 1.35fr); gap: 18px; align-items: stretch; }
+.input-panel, .results-panel { background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); padding: 32px; }
+.input-panel { border-top: 4px solid var(--teal); }
+.results-panel { border-top: 4px solid var(--coral); }
+.panel-heading { align-items: flex-start; display: flex; justify-content: space-between; margin-bottom: 32px; }
+h2 { font-size: 1.8rem; letter-spacing: -.04em; }
+.status-dot { background: var(--teal); border-radius: 50%; height: 9px; margin-top: 8px; width: 9px; }
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.field-small { grid-column: span 2; max-width: 50%; }
+.field span, .ratio-title { display: flex; justify-content: space-between; color: var(--ink); font-size: .78rem; font-weight: 700; letter-spacing: .02em; }
+.field small, .ratio-title small { color: var(--muted); font-size: .65rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; }
+input { border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: transparent; color: var(--ink); font: 600 1.15rem 'DM Sans', sans-serif; margin-top: 9px; outline: 0; padding: 9px 0 11px; width: 100%; }
+input:focus { border-color: var(--teal); box-shadow: 0 2px 0 var(--teal); }
+.field.invalid input { border-color: var(--coral); }
+.field-error { color: var(--coral) !important; display: block; font-size: .68rem !important; font-weight: 500 !important; line-height: 1.3; margin-top: 5px; }
+.ratio-block { border-top: 1px solid var(--line); margin-top: 32px; padding-top: 24px; }
+.ratio-title { margin-bottom: 16px; }
+.ratio-grid { gap: 22px; }
+.calculate-button { align-items: center; background: var(--teal); border: 0; color: white; cursor: pointer; display: flex; font: 700 .78rem 'DM Sans', sans-serif; justify-content: space-between; letter-spacing: .04em; margin-top: 34px; padding: 16px 18px; text-align: left; transition: background .2s, transform .2s; width: 100%; }
+.calculate-button span { font-size: 1.35rem; font-weight: 400; line-height: .5; }
+.calculate-button:hover { background: var(--teal-dark); transform: translateY(-2px); }
+.form-message { color: var(--coral); font-size: .75rem; min-height: 16px; margin: 12px 0 0; }
+.results-heading { margin-bottom: 16px; }
+.total-label { color: var(--muted); font-size: .64rem; letter-spacing: .13em; }
+.total-value { color: var(--teal); font-family: Fraunces, Georgia, serif; font-size: clamp(2.1rem, 4vw, 3.5rem); letter-spacing: -.055em; line-height: 1; }
+.asset-strip { border-bottom: 1px solid var(--line); display: flex; gap: 56px; margin: 24px 0 26px; padding-bottom: 20px; }
+.asset-strip div { display: grid; gap: 6px; }
+.asset-strip span, .table-note { color: var(--muted); font-size: .72rem; }
+.asset-strip strong { font-size: .95rem; }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; min-width: 500px; width: 100%; }
+caption { text-align: left; color: var(--ink); font-size: .75rem; font-weight: 700; margin-bottom: 12px; }
+th, td { border-bottom: 1px solid var(--line); padding: 14px 8px; text-align: right; vertical-align: middle; }
+th:first-child, td:first-child { padding-left: 0; text-align: left; }
+thead th { color: var(--muted); font-size: .65rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; }
+tbody th { font-size: .82rem; font-weight: 600; white-space: nowrap; }
+tbody td { font-size: .78rem; }
+tbody td strong, tbody td small { display: block; }
+tbody td small { color: var(--muted); font-size: .67rem; margin-top: 4px; }
+.owner-badge { align-items: center; background: #e2f0e7; border-radius: 50%; color: var(--teal); display: inline-flex; font-size: .65rem; height: 24px; justify-content: center; margin-right: 8px; width: 24px; }
+.share-total { color: var(--teal); font-weight: 700; }
+.table-note { margin: 18px 0 0; }
+footer { border-top: 1px solid var(--line); margin-top: 48px; padding-top: 18px; }
+footer span:first-child { color: var(--teal); font-weight: 700; }
+@media (max-width: 800px) { .workspace { grid-template-columns: 1fr; } .intro { padding-top: 65px; } }
+@media (max-width: 520px) { .page-shell { width: min(100% - 28px, 1160px); } .header-note { display: none; } .intro { padding: 56px 0 40px; } h1 { font-size: 3.6rem; } .input-panel, .results-panel { padding: 24px 20px; } .field-grid { gap: 16px; } .field-small { max-width: none; } .asset-strip { gap: 28px; } footer { font-size: .58rem; } }
