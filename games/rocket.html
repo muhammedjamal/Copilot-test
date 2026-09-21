@@ -3,6 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%2355f5ff' d='M32 5c8 9 18 19 18 29 0 11-8 20-18 20S14 45 14 34c0-10 10-20 18-29zm0 12c-6 0-11 7-11 15 0 8 5 14 11 14s11-6 11-14c0-8-5-15-11-15z'/%3E%3Cpath fill='%23ff4fbb' d='M23 30l9-7 9 7-9 19-9-19z'/%3E%3Cpath fill='%23ffe66d' d='M24 16l8-7 8 7-8 7-8-7z'/%3E%3C/svg%3E" />
 	<title>Neon Drift // Space Shooter</title>
 	<style>
 		:root { color-scheme: dark; --cyan: #55f5ff; --pink: #ff4fbb; --yellow: #ffe66d; --ink: #050914; }
@@ -12,7 +13,11 @@
 		.game-shell { position: relative; width: min(100vw, 1100px); height: min(100vh, 760px); min-height: 480px; overflow: hidden; border: 1px solid #21435c; background: #070d1c; box-shadow: 0 0 45px #071a36, inset 0 0 70px #0d1b35; }
 		canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
 		.hud { position: absolute; inset: 0 0 auto; display: flex; justify-content: space-between; gap: 16px; padding: 20px 24px; pointer-events: none; text-transform: uppercase; letter-spacing: .14em; }
+		.hud-right { display: flex; align-items: center; gap: 18px; }
 		.brand { color: var(--cyan); font-size: 12px; text-shadow: 0 0 12px var(--cyan); }
+		.pause-button { pointer-events: auto; border: 1px solid rgba(85, 245, 255, .7); border-radius: 999px; background: rgba(7, 17, 31, .76); color: var(--cyan); padding: 8px 14px; font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; cursor: pointer; box-shadow: 0 0 18px rgba(85, 245, 255, .12); transition: all .18s ease; }
+		.pause-button:hover, .pause-button:focus-visible { background: rgba(85, 245, 255, .12); transform: translateY(-1px); outline: none; }
+		.pause-button.active { background: rgba(255, 79, 187, .12); border-color: rgba(255, 79, 187, .8); color: var(--pink); box-shadow: 0 0 18px rgba(255, 79, 187, .12); }
 		.stats { display: flex; gap: 24px; color: #9cb0c8; font-size: 11px; text-align: right; }
 		.stats strong { display: block; margin-top: 4px; color: #fff; font-size: 20px; letter-spacing: .04em; text-shadow: 0 0 10px var(--cyan); }
 		.status { position: absolute; left: 24px; bottom: 20px; color: #7190a9; font-size: 10px; letter-spacing: .12em; pointer-events: none; }
@@ -40,7 +45,10 @@
 		<canvas id="game" aria-label="Playable space shooter canvas"></canvas>
 		<div class="hud">
 			<div class="brand">NEON DRIFT // SECTOR 07</div>
-			<div class="stats"><div>SCORE<strong id="score">000000</strong></div><div>WAVE<strong id="wave">01</strong></div><div>HULL<strong id="hull">03</strong></div></div>
+			<div class="hud-right">
+				<button id="pauseButton" class="pause-button" type="button" aria-label="Pause game">PAUSE</button>
+				<div class="stats"><div>SCORE<strong id="score">000000</strong></div><div>WAVE<strong id="wave">01</strong></div><div>HULL<strong id="hull">03</strong></div></div>
+			</div>
 		</div>
 		<div id="status" class="status">ARROWS MOVE &nbsp; // &nbsp; SPACE FIRE &nbsp; // &nbsp; MOUSE AIM</div>
 		<div class="credit">DESIGNED BY MJ</div>
@@ -70,6 +78,7 @@
 			const scoreElement = document.getElementById("score");
 			const waveElement = document.getElementById("wave");
 			const hullElement = document.getElementById("hull");
+			const pauseButton = document.getElementById("pauseButton");
 			const overlay = document.getElementById("overlay");
 			const title = document.getElementById("title");
 			const message = document.getElementById("message");
@@ -90,6 +99,7 @@
 			let wave = 1;
 			let running = false;
 			let gameOver = false;
+			let paused = false;
 			let mouse = { x: 0, y: 0, active: false };
 			const player = { x: 0, y: 0, angle: -Math.PI / 2, radius: 15, speed: 310, cooldown: 0, hull: 3, invulnerable: 0 };
 			function playSound(name) {
@@ -132,7 +142,21 @@
 			function resetGame() {
 				score = 0; wave = 1; spawnTimer = 0; waveTimer = 0; bullets.length = 0; enemies.length = 0; particles.length = 0;
 				player.x = width / 2; player.y = height * .72; player.angle = -Math.PI / 2; player.hull = 3; player.cooldown = 0; player.invulnerable = 0;
-				gameOver = false; running = true; overlay.classList.add("hidden"); updateHud(); playSound("launch");
+				gameOver = false; running = true; paused = false; pauseButton.disabled = false; pauseButton.textContent = "PAUSE"; pauseButton.classList.remove("active"); overlay.classList.add("hidden"); updateHud(); playSound("launch");
+			}
+			function togglePause() {
+				if (!running || gameOver) return;
+				paused = !paused;
+				pauseButton.textContent = paused ? "RESUME" : "PAUSE";
+				pauseButton.classList.toggle("active", paused);
+				if (paused) {
+					title.textContent = "PAUSED";
+					message.innerHTML = "The signal is holding.<br>Resume when you are ready.";
+					document.querySelector(".prompt").textContent = "PRESS P OR CLICK TO RESUME";
+					overlay.classList.remove("hidden");
+				} else {
+					overlay.classList.add("hidden");
+				}
 			}
 			function updateHud() {
 				scoreElement.textContent = String(score).padStart(6, "0");
@@ -166,7 +190,7 @@
 				if (player.hull <= 0) endGame();
 			}
 			function endGame() {
-				running = false; gameOver = true; playSound("gameover"); title.textContent = "SIGNAL LOST"; message.innerHTML = "Final score: <strong class=\"accent\">" + String(score).padStart(6, "0") + "</strong><br>The sector remembers your run."; document.querySelector(".prompt").textContent = "PRESS SPACE OR CLICK TO RESTART"; overlay.classList.remove("hidden");
+				running = false; gameOver = true; paused = false; pauseButton.disabled = true; pauseButton.textContent = "PAUSE"; pauseButton.classList.remove("active"); playSound("gameover"); title.textContent = "SIGNAL LOST"; message.innerHTML = "Final score: <strong class=\"accent\">" + String(score).padStart(6, "0") + "</strong><br>The sector remembers your run."; document.querySelector(".prompt").textContent = "PRESS SPACE OR CLICK TO RESTART"; overlay.classList.remove("hidden");
 			}
 			function update(delta) {
 				waveTimer += delta; spawnTimer -= delta; player.cooldown -= delta; player.invulnerable -= delta;
@@ -187,17 +211,33 @@
 			function drawBackground() { context.fillStyle = "#070d1c"; context.fillRect(0, 0, width, height); context.strokeStyle = "rgba(42, 99, 124, .10)"; context.lineWidth = 1; for (let x = 0; x < width; x += 46) { context.beginPath(); context.moveTo(x, 0); context.lineTo(x, height); context.stroke(); } for (let y = 0; y < height; y += 46) { context.beginPath(); context.moveTo(0, y); context.lineTo(width, y); context.stroke(); } for (const star of stars) { context.globalAlpha = star.alpha; context.fillStyle = "#bafaff"; context.fillRect(star.x, star.y, star.size, star.size); } context.globalAlpha = 1; }
 			function drawPlayer() { if (player.invulnerable > 0 && Math.floor(player.invulnerable * 12) % 2 === 0) return; context.save(); context.translate(player.x, player.y); context.rotate(player.angle + Math.PI / 2); context.shadowBlur = 18; context.shadowColor = "#55f5ff"; context.strokeStyle = "#55f5ff"; context.fillStyle = "rgba(33, 187, 210, .18)"; context.lineWidth = 2; context.beginPath(); context.moveTo(0, -20); context.lineTo(13, 14); context.lineTo(0, 9); context.lineTo(-13, 14); context.closePath(); context.fill(); context.stroke(); context.shadowBlur = 7; context.shadowColor = "#ffffff"; context.fillStyle = "#ffffff"; context.font = "bold 7px monospace"; context.textAlign = "center"; context.textBaseline = "middle"; context.fillText("MJ", 0, 1); context.shadowBlur = 8; context.fillStyle = "#ffe66d"; context.beginPath(); context.moveTo(-5, 13); context.lineTo(0, 23 + Math.random() * 6); context.lineTo(5, 13); context.fill(); context.restore(); }
 			function draw() { drawBackground(); context.shadowBlur = 12; context.shadowColor = "#ffe66d"; context.fillStyle = "#ffe66d"; for (const bullet of bullets) { context.beginPath(); context.arc(bullet.x, bullet.y, 3, 0, Math.PI * 2); context.fill(); } context.shadowColor = "#ff4fbb"; for (const enemy of enemies) { context.save(); context.translate(enemy.x, enemy.y); context.rotate(enemy.rotation); context.strokeStyle = enemy.hue; context.shadowColor = enemy.hue; context.lineWidth = 2; context.beginPath(); for (let point = 0; point < enemy.shape; point++) { const angle = point / enemy.shape * Math.PI * 2; const radius = enemy.size * random(.72, 1.05); const x = Math.cos(angle) * radius; const y = Math.sin(angle) * radius; point ? context.lineTo(x, y) : context.moveTo(x, y); } context.closePath(); context.stroke(); context.restore(); } context.shadowBlur = 0; for (const particle of particles) { context.globalAlpha = Math.max(0, particle.life / particle.maxLife); context.fillStyle = particle.color; context.fillRect(particle.x, particle.y, particle.size, particle.size); } context.globalAlpha = 1; drawPlayer(); }
-			function frame(time) { const delta = Math.min((time - lastTime) / 1000 || 0, .033); lastTime = time; if (running) update(delta); draw(); requestAnimationFrame(frame); }
-			function launch() { resetGame(); }
-			window.addEventListener("keydown", (event) => { keys.add(event.key); if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(event.key)) event.preventDefault(); if ((event.key === " " || event.key === "Enter") && (!running || gameOver)) launch(); });
+			function frame(time) { const delta = Math.min((time - lastTime) / 1000 || 0, .033); lastTime = time; if (running && !paused) update(delta); draw(); requestAnimationFrame(frame); }
+			function launch() { if (paused) { togglePause(); return; } resetGame(); }
+			window.addEventListener("keydown", (event) => {
+				keys.add(event.key);
+				if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(event.key)) event.preventDefault();
+				if (event.key.toLowerCase() === "p") {
+					togglePause();
+					return;
+				}
+				if ((event.key === " " || event.key === "Enter") && (!running || gameOver)) launch();
+			});
 			window.addEventListener("keyup", (event) => keys.delete(event.key));
 			canvas.addEventListener("pointermove", aimAtPointer); canvas.addEventListener("pointerdown", (event) => { aimAtPointer(event); if (!running || gameOver) launch(); else fire(); });
+			pauseButton.addEventListener("click", () => { if (running && !gameOver) togglePause(); });
 			const mobileButtons = document.querySelectorAll("[data-key]");
 			mobileButtons.forEach((button) => { const key = button.dataset.key; const press = (event) => { event.preventDefault(); keys.add(key); button.classList.add("active"); button.setPointerCapture(event.pointerId); }; const release = (event) => { event.preventDefault(); keys.delete(key); button.classList.remove("active"); }; button.addEventListener("pointerdown", press); button.addEventListener("pointerup", release); button.addEventListener("pointercancel", release); });
 			const fireButton = document.querySelector(".fire-button");
 			fireButton.addEventListener("pointerdown", (event) => { event.preventDefault(); fireButton.classList.add("active"); fireButton.setPointerCapture(event.pointerId); if (!running || gameOver) launch(); keys.add(" "); fire(); });
 			fireButton.addEventListener("pointerup", () => { fireButton.classList.remove("active"); keys.delete(" "); }); fireButton.addEventListener("pointercancel", () => { fireButton.classList.remove("active"); keys.delete(" "); });
-			overlay.addEventListener("pointerdown", launch);
+			overlay.addEventListener("pointerdown", () => {
+				if (paused) {
+					togglePause();
+					return;
+				}
+				launch();
+			});
+			pauseButton.disabled = true;
 			resize(); createStars(); updateHud(); requestAnimationFrame(frame);
 		})();
 	</script>
