@@ -3,7 +3,12 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%2355f5ff' d='M32 5c8 9 18 19 18 29 0 11-8 20-18 20S14 45 14 34c0-10 10-20 18-29zm0 12c-6 0-11 7-11 15 0 8 5 14 11 14s11-6 11-14c0-8-5-15-11-15z'/%3E%3Cpath fill='%23ff4fbb' d='M23 30l9-7 9 7-9 19-9-19z'/%3E%3Cpath fill='%23ffe66d' d='M24 16l8-7 8 7-8 7-8-7z'/%3E%3C/svg%3E" />
+	<meta name="theme-color" content="#050914">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-title" content="Neon Drift">
+	<link rel="icon" type="image/svg+xml" href="rocket.svg" />
+	<link rel="manifest" href="manifest.webmanifest" />
 	<title>Neon Drift // Space Shooter</title>
 	<style>
 		:root { color-scheme: dark; --cyan: #55f5ff; --pink: #ff4fbb; --yellow: #ffe66d; --ink: #050914; }
@@ -15,9 +20,11 @@
 		.hud { position: absolute; inset: 0 0 auto; display: flex; justify-content: space-between; gap: 16px; padding: 20px 24px; pointer-events: none; text-transform: uppercase; letter-spacing: .14em; }
 		.hud-right { display: flex; align-items: center; gap: 18px; }
 		.brand { color: var(--cyan); font-size: 12px; text-shadow: 0 0 12px var(--cyan); }
-		.pause-button { pointer-events: auto; border: 1px solid rgba(85, 245, 255, .7); border-radius: 999px; background: rgba(7, 17, 31, .76); color: var(--cyan); padding: 8px 14px; font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; cursor: pointer; box-shadow: 0 0 18px rgba(85, 245, 255, .12); transition: all .18s ease; }
-		.pause-button:hover, .pause-button:focus-visible { background: rgba(85, 245, 255, .12); transform: translateY(-1px); outline: none; }
+		.pause-button, .install-button { pointer-events: auto; border: 1px solid rgba(85, 245, 255, .7); border-radius: 999px; background: rgba(7, 17, 31, .76); color: var(--cyan); padding: 8px 14px; font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; cursor: pointer; box-shadow: 0 0 18px rgba(85, 245, 255, .12); transition: all .18s ease; }
+		.pause-button:hover, .pause-button:focus-visible, .install-button:hover, .install-button:focus-visible { background: rgba(85, 245, 255, .12); transform: translateY(-1px); outline: none; }
 		.pause-button.active { background: rgba(255, 79, 187, .12); border-color: rgba(255, 79, 187, .8); color: var(--pink); box-shadow: 0 0 18px rgba(255, 79, 187, .12); }
+		.install-button { border-color: rgba(255, 230, 109, .7); color: var(--yellow); }
+		.install-button.hidden { display: none; }
 		.stats { display: flex; gap: 24px; color: #9cb0c8; font-size: 11px; text-align: right; }
 		.stats strong { display: block; margin-top: 4px; color: #fff; font-size: 20px; letter-spacing: .04em; text-shadow: 0 0 10px var(--cyan); }
 		.status { position: absolute; left: 24px; bottom: 20px; color: #7190a9; font-size: 10px; letter-spacing: .12em; pointer-events: none; }
@@ -46,6 +53,7 @@
 		<div class="hud">
 			<div class="brand">NEON DRIFT // SECTOR 07</div>
 			<div class="hud-right">
+				<button id="installButton" class="install-button hidden" type="button" aria-label="Install game">INSTALL</button>
 				<button id="pauseButton" class="pause-button" type="button" aria-label="Pause game">PAUSE</button>
 				<div class="stats"><div>SCORE<strong id="score">000000</strong></div><div>WAVE<strong id="wave">01</strong></div><div>HULL<strong id="hull">03</strong></div></div>
 			</div>
@@ -79,6 +87,7 @@
 			const waveElement = document.getElementById("wave");
 			const hullElement = document.getElementById("hull");
 			const pauseButton = document.getElementById("pauseButton");
+			const installButton = document.getElementById("installButton");
 			const overlay = document.getElementById("overlay");
 			const title = document.getElementById("title");
 			const message = document.getElementById("message");
@@ -100,6 +109,7 @@
 			let running = false;
 			let gameOver = false;
 			let paused = false;
+			let deferredPrompt = null;
 			let mouse = { x: 0, y: 0, active: false };
 			const player = { x: 0, y: 0, angle: -Math.PI / 2, radius: 15, speed: 310, cooldown: 0, hull: 3, invulnerable: 0 };
 			function playSound(name) {
@@ -213,6 +223,18 @@
 			function draw() { drawBackground(); context.shadowBlur = 12; context.shadowColor = "#ffe66d"; context.fillStyle = "#ffe66d"; for (const bullet of bullets) { context.beginPath(); context.arc(bullet.x, bullet.y, 3, 0, Math.PI * 2); context.fill(); } context.shadowColor = "#ff4fbb"; for (const enemy of enemies) { context.save(); context.translate(enemy.x, enemy.y); context.rotate(enemy.rotation); context.strokeStyle = enemy.hue; context.shadowColor = enemy.hue; context.lineWidth = 2; context.beginPath(); for (let point = 0; point < enemy.shape; point++) { const angle = point / enemy.shape * Math.PI * 2; const radius = enemy.size * random(.72, 1.05); const x = Math.cos(angle) * radius; const y = Math.sin(angle) * radius; point ? context.lineTo(x, y) : context.moveTo(x, y); } context.closePath(); context.stroke(); context.restore(); } context.shadowBlur = 0; for (const particle of particles) { context.globalAlpha = Math.max(0, particle.life / particle.maxLife); context.fillStyle = particle.color; context.fillRect(particle.x, particle.y, particle.size, particle.size); } context.globalAlpha = 1; drawPlayer(); }
 			function frame(time) { const delta = Math.min((time - lastTime) / 1000 || 0, .033); lastTime = time; if (running && !paused) update(delta); draw(); requestAnimationFrame(frame); }
 			function launch() { if (paused) { togglePause(); return; } resetGame(); }
+			window.addEventListener("beforeinstallprompt", (event) => {
+				event.preventDefault();
+				deferredPrompt = event;
+				installButton.classList.remove("hidden");
+			});
+			installButton.addEventListener("click", async () => {
+				if (!deferredPrompt) return;
+				deferredPrompt.prompt();
+				await deferredPrompt.userChoice;
+				deferredPrompt = null;
+				installButton.classList.add("hidden");
+			});
 			window.addEventListener("keydown", (event) => {
 				keys.add(event.key);
 				if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(event.key)) event.preventDefault();
@@ -238,6 +260,13 @@
 				launch();
 			});
 			pauseButton.disabled = true;
+			if ("serviceWorker" in navigator) {
+				window.addEventListener("load", () => {
+					navigator.serviceWorker.register("./sw.js").catch(() => {
+						console.warn("Service worker registration failed.");
+					});
+				});
+			}
 			resize(); createStars(); updateHud(); requestAnimationFrame(frame);
 		})();
 	</script>

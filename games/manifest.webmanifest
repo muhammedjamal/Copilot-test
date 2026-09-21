@@ -1,0 +1,18 @@
+{
+  "name": "Neon Drift",
+  "short_name": "Neon Drift",
+  "description": "A neon space shooter game",
+  "start_url": "./rocket.html",
+  "display": "standalone",
+  "background_color": "#050914",
+  "theme_color": "#050914",
+  "orientation": "landscape",
+  "icons": [
+    {
+      "src": "rocket.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
