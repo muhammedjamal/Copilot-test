@@ -6,7 +6,7 @@
   "display": "standalone",
   "background_color": "#050914",
   "theme_color": "#050914",
-  "orientation": "landscape",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "rocket.svg",

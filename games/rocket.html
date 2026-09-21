@@ -55,7 +55,12 @@
 			<div class="hud-right">
 				<button id="installButton" class="install-button hidden" type="button" aria-label="Install game">INSTALL</button>
 				<button id="pauseButton" class="pause-button" type="button" aria-label="Pause game">PAUSE</button>
-				<div class="stats"><div>SCORE<strong id="score">000000</strong></div><div>WAVE<strong id="wave">01</strong></div><div>HULL<strong id="hull">03</strong></div></div>
+				<div class="stats">
+					<div>BEST<strong id="highScore">000000</strong></div>
+					<div>SCORE<strong id="score">000000</strong></div>
+					<div>WAVE<strong id="wave">01</strong></div>
+					<div>HULL<strong id="hull">03</strong></div>
+				</div>
 			</div>
 		</div>
 		<div id="status" class="status">ARROWS MOVE &nbsp; // &nbsp; SPACE FIRE &nbsp; // &nbsp; MOUSE AIM</div>
@@ -86,6 +91,7 @@
 			const scoreElement = document.getElementById("score");
 			const waveElement = document.getElementById("wave");
 			const hullElement = document.getElementById("hull");
+			const highScoreElement = document.getElementById("highScore");
 			const pauseButton = document.getElementById("pauseButton");
 			const installButton = document.getElementById("installButton");
 			const overlay = document.getElementById("overlay");
@@ -110,6 +116,12 @@
 			let gameOver = false;
 			let paused = false;
 			let deferredPrompt = null;
+			let highScore = 0;
+			try {
+				highScore = Number.parseInt(localStorage.getItem("neon-drift-high-score") || "0", 10) || 0;
+			} catch (error) {
+				highScore = 0;
+			}
 			let mouse = { x: 0, y: 0, active: false };
 			const player = { x: 0, y: 0, angle: -Math.PI / 2, radius: 15, speed: 310, cooldown: 0, hull: 3, invulnerable: 0 };
 			function playSound(name) {
@@ -169,7 +181,14 @@
 				}
 			}
 			function updateHud() {
+				highScore = Math.max(highScore, score);
+				try {
+					localStorage.setItem("neon-drift-high-score", String(highScore));
+				} catch (error) {
+					// Ignore localStorage failures in restricted contexts.
+				}
 				scoreElement.textContent = String(score).padStart(6, "0");
+				highScoreElement.textContent = String(highScore).padStart(6, "0");
 				waveElement.textContent = String(wave).padStart(2, "0");
 				hullElement.textContent = String(Math.max(0, player.hull)).padStart(2, "0");
 			}
@@ -200,7 +219,15 @@
 				if (player.hull <= 0) endGame();
 			}
 			function endGame() {
-				running = false; gameOver = true; paused = false; pauseButton.disabled = true; pauseButton.textContent = "PAUSE"; pauseButton.classList.remove("active"); playSound("gameover"); title.textContent = "SIGNAL LOST"; message.innerHTML = "Final score: <strong class=\"accent\">" + String(score).padStart(6, "0") + "</strong><br>The sector remembers your run."; document.querySelector(".prompt").textContent = "PRESS SPACE OR CLICK TO RESTART"; overlay.classList.remove("hidden");
+				running = false; gameOver = true; paused = false; pauseButton.disabled = true; pauseButton.textContent = "PAUSE"; pauseButton.classList.remove("active");
+				highScore = Math.max(highScore, score);
+				try {
+					localStorage.setItem("neon-drift-high-score", String(highScore));
+				} catch (error) {
+					// Ignore localStorage failures in restricted contexts.
+				}
+				playSound("gameover"); title.textContent = "SIGNAL LOST"; message.innerHTML = "Final score: <strong class=\"accent\">" + String(score).padStart(6, "0") + "</strong><br>Best: <strong class=\"accent\">" + String(highScore).padStart(6, "0") + "</strong><br>The sector remembers your run."; document.querySelector(".prompt").textContent = "PRESS SPACE OR CLICK TO RESTART"; overlay.classList.remove("hidden");
+				updateHud();
 			}
 			function update(delta) {
 				waveTimer += delta; spawnTimer -= delta; player.cooldown -= delta; player.invulnerable -= delta;
@@ -260,6 +287,7 @@
 				launch();
 			});
 			pauseButton.disabled = true;
+			updateHud();
 			if ("serviceWorker" in navigator) {
 				window.addEventListener("load", () => {
 					navigator.serviceWorker.register("./sw.js").catch(() => {
@@ -267,7 +295,7 @@
 					});
 				});
 			}
-			resize(); createStars(); updateHud(); requestAnimationFrame(frame);
+			resize(); createStars(); requestAnimationFrame(frame);
 		})();
 	</script>
 </body>
