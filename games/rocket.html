@@ -271,16 +271,21 @@
 				installButton.classList.toggle("hidden", !available);
 
 				overlayInstall.classList.remove("hidden");
-				overlayButton.disabled = !available;
+				overlayButton.disabled = false;
+				overlayButton.textContent = available ? "INSTALL" : "INSTALL FROM BROWSER MENU";
 			};
 			const triggerInstall = async () => {
-				if (!deferredPrompt) return;
+				if (!deferredPrompt) {
+					message.innerHTML = "Install is unavailable in this browser context.<br>Use your browser menu and choose <strong class=\"accent\">Install app</strong> or <strong class=\"accent\">Add to Home Screen</strong>.";
+					return;
+				}
 				deferredPrompt.prompt();
 				await deferredPrompt.userChoice;
 				deferredPrompt = null;
 				updateInstallAvailability();
 			};
 			installButton.addEventListener("click", triggerInstall);
+			overlayInstall.addEventListener("pointerdown", (event) => event.stopPropagation());
 			overlayInstall.querySelector("button").addEventListener("click", triggerInstall);
 			updateInstallAvailability();
 			window.addEventListener("keydown", (event) => {
