@@ -142,6 +142,12 @@
 
 		.field-wide { grid-column: 1 / -1; }
 
+		.date-range {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 16px;
+		}
+
 		.range-row {
 			display: flex;
 			align-items: center;
@@ -435,6 +441,7 @@
 			.calculator { grid-template-columns: 1fr; padding: 10px; }
 			.form-panel { padding: 20px 14px 24px; }
 			.fields { grid-template-columns: 1fr; gap: 18px; }
+			.date-range { grid-template-columns: 1fr; gap: 12px; }
 			.result { min-height: 350px; padding: 26px; }
 		}
 
@@ -499,6 +506,20 @@
 						<p class="hint">Days you will be away</p>
 					</div>
 					<div class="field-wide">
+						<label>Exemption date range</label>
+						<div class="date-range">
+							<div>
+								<label for="exemption-from">From date</label>
+								<input id="exemption-from" name="exemption-from" type="date" aria-describedby="exemption-hint">
+							</div>
+							<div>
+								<label for="exemption-to">To date</label>
+								<input id="exemption-to" name="exemption-to" type="date" aria-describedby="exemption-hint">
+							</div>
+						</div>
+						<p class="hint" id="exemption-hint">Select both dates. Calendar days include weekends, holidays, and leave; only dates in the selected month affect its target.</p>
+					</div>
+					<div class="field-wide">
 						<label for="attendance">Required attendance</label>
 						<div class="range-row">
 							<input id="attendance" name="attendance" type="range" min="0" max="100" step="5" value="60">
@@ -523,7 +544,7 @@
 					<p class="number" id="office-days">12</p>
 					<p class="unit">days in <span id="selected-month">January</span> <span id="selected-year">2026</span></p>
 					<p class="weekday-total"><span id="weekdays-count">22</span> weekdays in this month</p>
-					<p class="breakdown"><span><strong id="available-days">22</strong> available</span><span><strong id="deducted-days">0</strong> away or holiday</span></p>
+					<p class="breakdown"><span><strong id="available-days">22</strong> available</span><span><strong id="deducted-days">0</strong> days excluded</span></p>
 					<p class="summary" id="summary">You have 12 office days left to reach your target.</p>
 					<div class="progress-block">
 						<div class="progress-heading"><span>Monthly progress</span><span id="progress-label">0 of 12 days</span></div>
@@ -557,6 +578,9 @@
 		const year = document.querySelector("#year");
 		const holidays = document.querySelector("#holidays");
 		const leave = document.querySelector("#leave");
+		const exemptionFrom = document.querySelector("#exemption-from");
+		const exemptionTo = document.querySelector("#exemption-to");
+		const exemptionHint = document.querySelector("#exemption-hint");
 		const attendance = document.querySelector("#attendance");
 		const monthlyCap = document.querySelector("#monthly-cap");
 		const completed = document.querySelector("#completed");
@@ -595,6 +619,49 @@
 			todayTime.dateTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
 		}
 
+		function countExemptionWeekdays(selectedYearValue, monthIndex, daysInMonth) {
+			const fromDate = exemptionFrom.value;
+			const toDate = exemptionTo.value;
+			const invalidRange = Boolean(fromDate && toDate && toDate < fromDate);
+
+			exemptionTo.min = fromDate;
+			exemptionTo.setCustomValidity(invalidRange ? "End date must be on or after the start date." : "");
+			exemptionTo.setAttribute("aria-invalid", String(invalidRange));
+
+			if (!fromDate && !toDate) {
+				exemptionHint.textContent = "Select both dates. Calendar days include weekends, holidays, and leave; only dates in the selected month affect its target.";
+				return 0;
+			}
+			if (!fromDate || !toDate) {
+				exemptionHint.textContent = "Select both a start and end date to apply the exemption.";
+				return 0;
+			}
+			if (invalidRange) {
+				exemptionHint.textContent = "End date must be on or after the start date.";
+				return 0;
+			}
+
+			const monthPrefix = `${String(selectedYearValue).padStart(4, "0")}-${String(monthIndex + 1).padStart(2, "0")}`;
+			const monthStart = `${monthPrefix}-01`;
+			const monthEnd = `${monthPrefix}-${String(daysInMonth).padStart(2, "0")}`;
+			const clippedStart = fromDate > monthStart ? fromDate : monthStart;
+			const clippedEnd = toDate < monthEnd ? toDate : monthEnd;
+			if (clippedStart > clippedEnd) {
+				exemptionHint.textContent = "No exemption dates fall within the selected month.";
+				return 0;
+			}
+
+			const startTime = Date.parse(`${clippedStart}T00:00:00Z`);
+			const endTime = Date.parse(`${clippedEnd}T00:00:00Z`);
+			let exemptionWeekdays = 0;
+			for (let timestamp = startTime; timestamp <= endTime; timestamp += 86400000) {
+				const weekday = new Date(timestamp).getUTCDay();
+				if (weekday !== 0 && weekday !== 6) exemptionWeekdays += 1;
+			}
+			exemptionHint.textContent = `${exemptionWeekdays} weekdays excluded in the selected month; weekends in the range do not count against weekday availability.`;
+			return exemptionWeekdays;
+		}
+
 		async function detectApproximateLocation() {
 			locationValue.textContent = "Looking up location...";
 			publicIp.textContent = "Looking up IP...";
@@ -624,12 +691,13 @@
 			const selectedYearValue = Number(year.value) || currentDate.getFullYear();
 			const monthIndex = Number(month.value);
 			const daysInMonth = new Date(Date.UTC(selectedYearValue, monthIndex + 1, 0)).getUTCDate();
+			const exemptionWeekdays = countExemptionWeekdays(selectedYearValue, monthIndex, daysInMonth);
 			let weekdaysInMonth = 0;
 			for (let day = 1; day <= daysInMonth; day += 1) {
 				const weekday = new Date(Date.UTC(selectedYearValue, monthIndex, day)).getUTCDay();
 				if (weekday !== 0 && weekday !== 6) weekdaysInMonth += 1;
 			}
-			const availableWeekdays = Math.max(0, weekdaysInMonth - holidayDays - leaveDays);
+			const availableWeekdays = Math.max(0, weekdaysInMonth - holidayDays - leaveDays - exemptionWeekdays);
 			const requiredDays = Math.min(cap, Math.floor(availableWeekdays * attendanceRate / 100));
 			const remainingDays = Math.max(0, requiredDays - completedDays);
 			const progress = requiredDays === 0 ? 0 : Math.min(100, completedDays / requiredDays * 100);
@@ -645,7 +713,7 @@
 			selectedYear.textContent = selectedYearValue;
 			weekdaysCount.textContent = weekdaysInMonth;
 			availableDays.textContent = availableWeekdays;
-			deductedDays.textContent = Math.min(weekdaysInMonth, holidayDays + leaveDays);
+			deductedDays.textContent = Math.min(daysInMonth, holidayDays + leaveDays + exemptionWeekdays);
 			document.querySelector("#attendance-value").textContent = `${attendanceRate}%`;
 			document.querySelector("#formula-rate").textContent = `${attendanceRate}%`;
 			document.querySelector("#formula-cap").textContent = cap;
@@ -667,6 +735,8 @@
 			year.value = String(currentDate.getFullYear());
 			holidays.value = "0";
 			leave.value = "0";
+			exemptionFrom.value = "";
+			exemptionTo.value = "";
 			completed.value = "0";
 			updateResult();
 		});
