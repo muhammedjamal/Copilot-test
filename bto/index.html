@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Back to Office Calculator</title>
+		<title>Office Attendance Planner</title>
 	<style>
 		:root {
 			--ink: #172a3a;
@@ -32,7 +32,7 @@
 		.page {
 			width: min(1080px, calc(100% - 40px));
 			margin: 0 auto;
-			padding: 58px 0;
+			padding: 50px 0 38px;
 		}
 
 		.eyebrow {
@@ -44,23 +44,32 @@
 			animation: fade-slide 600ms ease-out both;
 		}
 
-		h1 {
-			max-width: 680px;
-			margin: 0;
-			font-size: clamp(2.7rem, 7vw, 5.6rem);
-			font-weight: 400;
-			line-height: 0.94;
-			letter-spacing: -0.04em;
-			animation: fade-slide 700ms 80ms ease-out both;
+		.topline {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 18px;
+			margin-bottom: 24px;
 		}
 
-		.intro {
-			max-width: 570px;
-			margin: 22px 0 44px;
+		.topline .eyebrow { margin: 0; }
+
+		.today-clock {
+			display: flex;
+			align-items: baseline;
+			gap: 10px;
 			color: var(--muted);
-			font: 1.06rem/1.6 Arial, sans-serif;
-			animation: fade-slide 700ms 160ms ease-out both;
+			font: 500 0.82rem/1.3 Arial, sans-serif;
+			white-space: nowrap;
+			animation: fade-slide 600ms 100ms ease-out both;
 		}
+
+		.today-label {
+			color: var(--teal-dark);
+			font-weight: 700;
+		}
+
+		.today-clock time { font-variant-numeric: tabular-nums; }
 
 		.calculator {
 			display: grid;
@@ -89,6 +98,64 @@
 			display: grid;
 			grid-template-columns: 1fr 1fr;
 			gap: 22px;
+		}
+
+		.fields > div {
+			animation: field-arrive 500ms both;
+		}
+
+		.fields > div:nth-child(1) { animation-delay: 100ms; }
+		.fields > div:nth-child(2) { animation-delay: 150ms; }
+		.fields > div:nth-child(3) { animation-delay: 200ms; }
+		.fields > div:nth-child(4) { animation-delay: 250ms; }
+		.fields > div:nth-child(5) { animation-delay: 300ms; }
+		.fields > div:nth-child(6) { animation-delay: 350ms; }
+		.fields > div:nth-child(7) { animation-delay: 400ms; }
+
+		.form-heading {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 16px;
+			margin-bottom: 24px;
+		}
+
+		.form-heading .section-title { margin: 0; }
+
+		.text-button {
+			min-height: 40px;
+			padding: 0 12px;
+			border: 1px solid var(--line);
+			border-radius: 4px;
+			color: var(--teal-dark);
+			background: #fff;
+			font: 700 0.78rem Arial, sans-serif;
+			cursor: pointer;
+			transition: border-color 160ms ease, background 160ms ease;
+		}
+
+		.text-button:hover { border-color: var(--teal); background: #f0f8f7; }
+		.text-button:focus-visible { outline: 3px solid rgba(8, 127, 140, 0.2); }
+
+		.field-wide { grid-column: 1 / -1; }
+
+		.range-row {
+			display: flex;
+			align-items: center;
+			gap: 14px;
+		}
+
+		input[type="range"] {
+			min-height: 32px;
+			padding: 0;
+			accent-color: var(--teal);
+		}
+
+		.range-value {
+			min-width: 54px;
+			color: var(--teal-dark);
+			font: 700 1rem Arial, sans-serif;
+			text-align: right;
 		}
 
 		label {
@@ -124,7 +191,7 @@
 
 		.result {
 			display: flex;
-			min-height: 310px;
+			min-height: 390px;
 			flex-direction: column;
 			justify-content: space-between;
 			padding: 30px;
@@ -145,6 +212,7 @@
 			bottom: -68px;
 			border: 24px solid rgba(240, 127, 97, 0.7);
 			border-radius: 50%;
+			animation: accent-drift 8s ease-in-out infinite;
 		}
 
 		.result-label {
@@ -179,12 +247,102 @@
 			font: 0.8rem Arial, sans-serif;
 		}
 
+		.breakdown {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 8px 18px;
+			margin: 16px 0 0;
+			color: #d7f0ef;
+			font: 0.8rem/1.4 Arial, sans-serif;
+		}
+
+		.breakdown strong { color: #fff; }
+
 		.summary {
-			max-width: 260px;
-			margin: 30px 0 0;
+			max-width: 300px;
+			margin: 21px 0 0;
 			color: #d7f0ef;
 			font: 0.9rem/1.5 Arial, sans-serif;
 		}
+
+		.progress-block {
+			margin-top: 23px;
+			font-family: Arial, sans-serif;
+		}
+
+		.progress-heading {
+			display: flex;
+			justify-content: space-between;
+			gap: 12px;
+			margin-bottom: 9px;
+			color: #d7f0ef;
+			font-size: 0.78rem;
+		}
+
+		.progress-track {
+			height: 8px;
+			border-radius: 99px;
+			background: rgba(255, 255, 255, 0.18);
+			overflow: hidden;
+			isolation: isolate;
+		}
+
+		.progress-fill {
+			position: relative;
+			width: 0;
+			height: 100%;
+			border-radius: inherit;
+			background: var(--coral);
+			transition: width 650ms cubic-bezier(0.22, 1, 0.36, 1);
+		}
+
+		.progress-fill::after {
+			position: absolute;
+			inset: 0;
+			content: "";
+			background: linear-gradient(100deg, transparent 15%, rgba(255, 255, 255, 0.45) 50%, transparent 85%);
+			transform: translateX(-100%);
+			animation: progress-sheen 2.8s 700ms ease-in-out infinite;
+		}
+
+		.location-footer {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 20px;
+			max-width: 720px;
+			margin: 26px auto 0;
+			padding: 16px 18px;
+			border-top: 1px solid var(--line);
+			border-bottom: 1px solid var(--line);
+			animation: fade-slide 700ms 460ms ease-out both;
+		}
+
+		.location-title {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: baseline;
+			gap: 8px 12px;
+			margin: 0;
+			font: 0.88rem/1.4 Arial, sans-serif;
+		}
+
+		.location-label {
+			color: var(--teal-dark);
+			font-weight: 700;
+		}
+
+		.location-value { color: var(--ink); }
+
+		.location-note {
+			margin: 5px 0 0;
+			color: var(--muted);
+			font: 0.72rem/1.45 Arial, sans-serif;
+		}
+
+		.location-note a { color: var(--teal-dark); }
+
+		.text-button:disabled { cursor: wait; opacity: 0.65; }
 
 		.credit {
 			margin: 28px 0 0;
@@ -197,7 +355,7 @@
 		}
 
 		.formula {
-			margin: 30px 0 0;
+			margin: 22px 0 0;
 			padding-top: 18px;
 			border-top: 1px solid rgba(215, 240, 239, 0.28);
 			color: #b8e3e4;
@@ -233,6 +391,21 @@
 			to { opacity: 1; transform: translateY(0); }
 		}
 
+		@keyframes field-arrive {
+			from { opacity: 0; transform: translateY(9px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+
+		@keyframes accent-drift {
+			0%, 100% { transform: translate(0, 0); opacity: 0.82; }
+			50% { transform: translate(-12px, -10px); opacity: 1; }
+		}
+
+		@keyframes progress-sheen {
+			0%, 30% { transform: translateX(-100%); }
+			70%, 100% { transform: translateX(100%); }
+		}
+
 		@keyframes breathe {
 			0%, 100% { box-shadow: 0 24px 60px rgba(23, 42, 58, 0.12); }
 			50% { box-shadow: 0 28px 68px rgba(8, 127, 140, 0.2); }
@@ -255,43 +428,62 @@
 
 		@media (max-width: 720px) {
 			.page { width: min(100% - 28px, 560px); padding: 36px 0; }
+			.topline { align-items: flex-start; flex-direction: column; gap: 10px; }
 			.calculator { grid-template-columns: 1fr; padding: 10px; }
 			.form-panel { padding: 20px 14px 24px; }
 			.fields { grid-template-columns: 1fr; gap: 18px; }
-			.result { min-height: 280px; padding: 26px; }
+			.result { min-height: 350px; padding: 26px; }
+		}
+
+		@media (max-width: 430px) {
+			.page { width: calc(100% - 24px); padding-top: 30px; }
+			.calculator { padding: 7px; }
+			.form-panel { padding: 18px 12px 22px; }
+			.result { padding: 22px; }
+			.formula strong { margin: 2px; }
+			.location-footer { align-items: flex-start; padding: 14px 8px; }
 		}
 	</style>
 </head>
 <body>
 	<main class="page">
-		<p class="eyebrow">Monthly planning tool</p>
-		<h1>Back to office, made simple.</h1>
-		<p class="intro">Work out how many days you need to be in the office after accounting for public holidays and your planned leave.</p>
+		<div class="topline">
+			<p class="eyebrow">Monthly planning tool</p>
+			<div class="today-clock" aria-label="Current date and time">
+				<span class="today-label">Today</span>
+				<time id="today-date"></time>
+				<span aria-hidden="true">·</span>
+				<time id="today-time"></time>
+			</div>
+		</div>
 
 		<section class="calculator" aria-label="Back to office calculator">
 			<form class="form-panel" id="office-form">
-				<h2 class="section-title">Your month</h2>
+				<div class="form-heading">
+					<h2 class="section-title">Your month</h2>
+					<button class="text-button" id="reset-month" type="button">Reset month</button>
+				</div>
 				<div class="fields">
 					<div>
 						<label for="month">Month</label>
 						<select id="month" name="month">
-							<option>January</option>
-							<option>February</option>
-							<option>March</option>
-							<option>April</option>
-							<option>May</option>
-							<option>June</option>
-							<option>July</option>
-							<option>August</option>
-							<option>September</option>
-							<option>October</option>
-							<option>November</option>
-							<option>December</option>
+							<option value="0">January</option>
+							<option value="1">February</option>
+							<option value="2">March</option>
+							<option value="3">April</option>
+							<option value="4">May</option>
+							<option value="5">June</option>
+							<option value="6">July</option>
+							<option value="7">August</option>
+							<option value="8">September</option>
+							<option value="9">October</option>
+							<option value="10">November</option>
+							<option value="11">December</option>
 						</select>
 					</div>
 					<div>
 						<label for="year">Year</label>
-						<input id="year" name="year" type="number" min="2020" max="2100" value="2026">
+						<input id="year" name="year" type="number" min="2020" max="2100">
 					</div>
 					<div>
 						<label for="holidays">Holidays in month</label>
@@ -300,28 +492,58 @@
 					</div>
 					<div>
 						<label for="leave">Planned leave</label>
-						<input id="leave" name="leave" type="number" min="0" max="12" value="0">
+						<input id="leave" name="leave" type="number" min="0" max="31" value="0">
 						<p class="hint">Days you will be away</p>
+					</div>
+					<div class="field-wide">
+						<label for="attendance">Required attendance</label>
+						<div class="range-row">
+							<input id="attendance" name="attendance" type="range" min="0" max="100" step="5" value="60">
+							<output class="range-value" id="attendance-value" for="attendance">60%</output>
+						</div>
+						<p class="hint">Percentage of available weekdays</p>
+					</div>
+					<div>
+						<label for="monthly-cap">Monthly day cap</label>
+						<input id="monthly-cap" name="monthly-cap" type="number" min="0" max="31" value="12">
+					</div>
+					<div>
+						<label for="completed">Office days completed</label>
+						<input id="completed" name="completed" type="number" min="0" max="31" value="0">
 					</div>
 				</div>
 			</form>
 
 			<aside class="result" aria-live="polite">
 				<div>
-					<p class="result-label">Office days required</p>
+					<p class="result-label">Monthly attendance target</p>
 					<p class="number" id="office-days">12</p>
 					<p class="unit">days in <span id="selected-month">January</span> <span id="selected-year">2026</span></p>
 					<p class="weekday-total"><span id="weekdays-count">22</span> weekdays in this month</p>
-					<p class="summary" id="summary">You have 12 office days to plan this month.</p>
+					<p class="breakdown"><span><strong id="available-days">22</strong> available</span><span><strong id="deducted-days">0</strong> away or holiday</span></p>
+					<p class="summary" id="summary">You have 12 office days left to reach your target.</p>
+					<div class="progress-block">
+						<div class="progress-heading"><span>Monthly progress</span><span id="progress-label">0 of 12 days</span></div>
+						<div class="progress-track" id="progress-track" role="progressbar" aria-label="Office attendance progress" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0">
+							<div class="progress-fill" id="progress-fill"></div>
+						</div>
+					</div>
 				</div>
 					<p class="formula" aria-label="Calculation formula">
-						<strong>60% x (weekdays - holidays - leave)</strong>
+						<strong><span id="formula-rate">60%</span> x available weekdays</strong>
 						<span class="operator">→</span>
-						<strong>cap at 12</strong>
+						<strong>cap at <span id="formula-cap">12</span></strong>
 						<span class="operator">→</span>
 						<strong>round down</strong>
 					</p>
 			</aside>
+		</section>
+		<section class="location-footer" aria-label="Approximate location">
+			<div>
+				<p class="location-title"><span class="location-label">Approximate location</span><span class="location-value" id="location-value" aria-live="polite">Detecting...</span></p>
+				<p class="location-title"><span class="location-label">Public IP</span><span class="location-value" id="public-ip" aria-live="polite">Detecting...</span></p>
+				<p class="location-note">Detected automatically using your IP address. Your public IP is sent to <a href="https://ipwho.is/" target="_blank" rel="noopener noreferrer">ipwho.is</a>; no browser location permission is requested.</p>
+			</div>
 		</section>
 		<p class="credit">Designed by Muhammed J</p>
 	</main>
@@ -332,24 +554,82 @@
 		const year = document.querySelector("#year");
 		const holidays = document.querySelector("#holidays");
 		const leave = document.querySelector("#leave");
+		const attendance = document.querySelector("#attendance");
+		const monthlyCap = document.querySelector("#monthly-cap");
+		const completed = document.querySelector("#completed");
 		const officeDays = document.querySelector("#office-days");
 		const selectedMonth = document.querySelector("#selected-month");
 		const selectedYear = document.querySelector("#selected-year");
 		const weekdaysCount = document.querySelector("#weekdays-count");
+		const availableDays = document.querySelector("#available-days");
+		const deductedDays = document.querySelector("#deducted-days");
 		const summary = document.querySelector("#summary");
+		const progressTrack = document.querySelector("#progress-track");
+		const progressFill = document.querySelector("#progress-fill");
+		const progressLabel = document.querySelector("#progress-label");
+		const locationValue = document.querySelector("#location-value");
+		const publicIp = document.querySelector("#public-ip");
+		const currentDate = new Date();
+		const todayDate = document.querySelector("#today-date");
+		const todayTime = document.querySelector("#today-time");
+		const dateFormatter = new Intl.DateTimeFormat(undefined, {
+			weekday: "short",
+			month: "short",
+			day: "numeric",
+			year: "numeric"
+		});
+		const timeFormatter = new Intl.DateTimeFormat(undefined, {
+			hour: "numeric",
+			minute: "2-digit",
+			second: "2-digit"
+		});
+
+		function updateClock() {
+			const now = new Date();
+			todayDate.textContent = dateFormatter.format(now);
+			todayDate.dateTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+			todayTime.textContent = timeFormatter.format(now);
+			todayTime.dateTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
+		}
+
+		async function detectApproximateLocation() {
+			locationValue.textContent = "Looking up location...";
+			publicIp.textContent = "Looking up IP...";
+			try {
+				const response = await fetch("https://ipwho.is/");
+				const data = await response.json();
+				if (!response.ok || !data.success) throw new Error("Location lookup failed");
+				locationValue.textContent = [data.city, data.region, data.country].filter(Boolean).join(", ") || "Location unavailable";
+				publicIp.textContent = data.ip || "IP unavailable";
+			} catch {
+				locationValue.textContent = "Could not determine location";
+				publicIp.textContent = "Could not determine IP";
+			}
+		}
+
+		month.value = String(currentDate.getMonth());
+		year.value = String(currentDate.getFullYear());
+		updateClock();
+		setInterval(updateClock, 1000);
 
 		function updateResult() {
 			const holidayDays = Math.max(0, Number(holidays.value) || 0);
 			const leaveDays = Math.max(0, Number(leave.value) || 0);
-			const selectedYearValue = Number(year.value) || 2026;
-			const daysInMonth = new Date(Date.UTC(selectedYearValue, month.selectedIndex + 1, 0)).getUTCDate();
+			const attendanceRate = Number(attendance.value);
+			const cap = Math.max(0, Number(monthlyCap.value) || 0);
+			const completedDays = Math.max(0, Number(completed.value) || 0);
+			const selectedYearValue = Number(year.value) || currentDate.getFullYear();
+			const monthIndex = Number(month.value);
+			const daysInMonth = new Date(Date.UTC(selectedYearValue, monthIndex + 1, 0)).getUTCDate();
 			let weekdaysInMonth = 0;
 			for (let day = 1; day <= daysInMonth; day += 1) {
-				const weekday = new Date(Date.UTC(selectedYearValue, month.selectedIndex, day)).getUTCDay();
+				const weekday = new Date(Date.UTC(selectedYearValue, monthIndex, day)).getUTCDay();
 				if (weekday !== 0 && weekday !== 6) weekdaysInMonth += 1;
 			}
 			const availableWeekdays = Math.max(0, weekdaysInMonth - holidayDays - leaveDays);
-			const requiredDays = Math.min(12, Math.floor(availableWeekdays * 0.6));
+			const requiredDays = Math.min(cap, Math.floor(availableWeekdays * attendanceRate / 100));
+			const remainingDays = Math.max(0, requiredDays - completedDays);
+			const progress = requiredDays === 0 ? 0 : Math.min(100, completedDays / requiredDays * 100);
 
 			const previousDays = officeDays.textContent;
 			officeDays.textContent = requiredDays;
@@ -358,16 +638,36 @@
 				void officeDays.offsetWidth;
 				officeDays.classList.add("changed");
 			}
-			selectedMonth.textContent = month.value;
-			selectedYear.textContent = year.value || "the selected year";
+			selectedMonth.textContent = month.options[month.selectedIndex].text;
+			selectedYear.textContent = selectedYearValue;
 			weekdaysCount.textContent = weekdaysInMonth;
-			summary.textContent = requiredDays === 1
-				? "You have 1 office day to plan this month."
-				: `You have ${requiredDays} office days to plan this month.`;
+			availableDays.textContent = availableWeekdays;
+			deductedDays.textContent = Math.min(weekdaysInMonth, holidayDays + leaveDays);
+			document.querySelector("#attendance-value").textContent = `${attendanceRate}%`;
+			document.querySelector("#formula-rate").textContent = `${attendanceRate}%`;
+			document.querySelector("#formula-cap").textContent = cap;
+			progressLabel.textContent = `${Math.min(completedDays, requiredDays)} of ${requiredDays} days`;
+			progressTrack.setAttribute("aria-valuemax", String(requiredDays));
+			progressTrack.setAttribute("aria-valuenow", String(Math.min(completedDays, requiredDays)));
+			progressFill.style.width = `${progress}%`;
+			summary.textContent = requiredDays === 0
+				? "No office days are required for this month."
+				: remainingDays === 0
+					? "Your monthly attendance target is complete."
+					: `You have ${remainingDays} office ${remainingDays === 1 ? "day" : "days"} left to reach your target.`;
 		}
 
 		form.addEventListener("input", updateResult);
 		form.addEventListener("change", updateResult);
+		document.querySelector("#reset-month").addEventListener("click", () => {
+			month.value = String(currentDate.getMonth());
+			year.value = String(currentDate.getFullYear());
+			holidays.value = "0";
+			leave.value = "0";
+			completed.value = "0";
+			updateResult();
+		});
+		detectApproximateLocation();
 		updateResult();
 	</script>
 </body>
